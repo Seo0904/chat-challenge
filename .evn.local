@@ -1,0 +1,6 @@
+
+GOOGLE_CLIENT_ID=77668620279-cv7j2hkev23csb672709f757m6dhpvpu.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+NEXTAUTH_SECRET=0HwZg2dQoVNbLQpFZB+c8yKdoXnDjRf9
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBRIC_APP_URL = "http://localhost:3000"
