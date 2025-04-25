@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  String    @id @default(cuid())
+  name String?
+  email String @unique
+  image String?
+  password String?
+  emailVerified DateTime?
+
+  accounts      Account[]
+  sessions      Session[]
+
+  sentMessages Message[] @relation("SendMessage")
+  receivedMessage Message[] @relation("ReceiveMessage")
+  friends Friend[] @relation("UserFriends")
+  friendOf Friend[] @relation("UserFriendOf")
+}
+
+model Account {
+  id String    @id @default(cuid())
+  userId String
+  type String
+  provider String
+  providerAccountId String
+  refresh_token String?
+  access_token String?
+  expires_at Int?
+  token_type String?
+  scope String?
+  id_token String?
+  session_state String?
+  
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id String    @id @default(cuid())
+  sessionToken String @unique
+  userId String
+  expires DateTime
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token String @unique
+  expires DateTime
+
+  @@unique([identifier, token])
+}
+
+model Message {
+  id String @id  @default(cuid())
+  sender User @relation("SendMessage", fields: [senderId], references: [id])
+  receiver User @relation("ReceiveMessage", fields: [receiverId], references: [id])
+  content String
+  createAt DateTime @default(now())
+  senderId String
+  receiverId String
+}
+
+model Friend {
+  id String @id @default(cuid())
+  user User @relation("UserFriends", fields: [userId], references: [id])
+  userId String
+  friend User @relation("UserFriendOf", fields: [friendId], references: [id])
+  friendId String
+  @@unique([userId, friendId])
+  status String // "pending", "accepted", "rejected"
+}
+
+model SocketAuthToken {
+  userId String
+  token String @unique
+  expire  DateTime
+
+  @@unique([userId, token])
+}
