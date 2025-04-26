@@ -1,53 +1,47 @@
-import { Server } from "socket.io"
+
 
 import { NextApiRequest, NextApiResponse } from "next";
+import { Server } from "socket.io";
 
 import type { Socket as NetSocket } from "net";
 import type { Server as HttpServer } from "http";
 import type { Server as IOServer } from "socket.io";
 import type { Socket } from "socket.io";
 
-export const config = {
-    api: {
-        bodyParser: false
-    }
-};
 
 interface SocketServer extends HttpServer {
     io?: IOServer;
 }
 
 interface SocketServerWithIO extends NetSocket {
-    server: SocketServer
+    server: SocketServer;
 }
 
 interface ResponseWithSocket extends NextApiResponse {
-    socket: SocketServerWithIO
+    socket: SocketServerWithIO;
 }
 
-export async function handler(req: NextApiRequest, res: ResponseWithSocket) {
+export default function handler(
+    req: NextApiRequest,
+    res: ResponseWithSocket,
+) {
 
+    if (req.method !== "POST") {
+        return res.status(405).end();
+    }
 
-    if(!res.socket?.server.io) {
-        console.log("Socket.IO server starting...")
+    if (res.socket.server.io) {
+        return res.send("server is already running")
+    }
 
-        const io = new Server(res.socket.server, {
-            addTrailingSlash: false,
-            path: "/api/socket"
-        });
-        res.socket.server.io = io;
+    // socker serverが起動していない状態なので、起動。
+    const io = new Server(res.socket.server, { addTrailingSlash: false });
+    // 各イベントを設定
+    io.on("connection", (socket: Socket) => {
+        socket.on("disconnect", () => console.log("disconnected"))
+        socket.emit("msg", "hello, from server!")
+    })
+    res.socket.server.io = io;
 
-        io.on("connection", (socket) => {
-            console.log("Connected", socket.id)
-
-            socket.on("message", (msg) => {
-                io.emit("message", msg)
-            });
-            
-            socket.on("disconnect", () => {
-                console.log("Disconnected", socket.id)
-            })
-        })
-    };
-    return res.end()    
+    return res.end();
 }

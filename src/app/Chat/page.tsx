@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator";
-import io from "socket.io-client"
+import {io} from "socket.io-client"
 import MessageBubble from "@/components/MessageBubble";
 import UserList from "@/components/UserList";
 import Header from "@/components/Header";
@@ -27,9 +27,10 @@ export type UserType = {
 }
 
 
-const socket = io({
-  path: "/api/socket_io",
-});
+// const socket = io({
+//   path: "/api/socket",
+// });
+const socket = io({ autoConnect: false });
 
 export default function Chat() {
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -48,6 +49,33 @@ export default function Chat() {
     
     fetchFriends()
   }, [])
+
+  useEffect(() => {
+    fetch("/api/socket", { method: "POST" })
+      .then(() => {
+        // 既に接続済だったら何もしない
+        if (socket.connected) {
+          return;
+        }
+        socket.connect();
+        // socket.ioのイベント登録する場合はここに
+        socket.on("connect", () => { console.log("connected!") })
+
+        socket.on("message", (msg: MessageType) => {
+          setMessages(prev => [...prev, msg]);
+          console.log(msg)
+        });
+
+      }
+    );
+    
+    return () => {
+      // 登録したイベントは全てクリーンアップ
+      socket.off("connect")
+      socket.off("msg")
+    }
+
+}, [])
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -77,7 +105,9 @@ export default function Chat() {
 
     })
     const data = await res.json()
+    console.log("ソケットします")
     socket.emit("message", data);
+    console.log("ソケットしました")
     const newMessage = [...messages, data]
     setMessages(newMessage);
 }
