@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+
 export async function  GET(reqest: NextRequest) {
 
     const session = await getServerSession(authOptions)
@@ -20,17 +21,22 @@ export async function  GET(reqest: NextRequest) {
         return new Response("Missing sender or receiver !!!!" , {status: 400})
     }
 
+
+    console.log(user)
+    console.log(user2)
     const messages = await prisma.message.findMany({
         where: {
             OR:[
-                {senderId: String(user.id), receiverId: user2},
-                {senderId: user2, receiverId: String(user.id)}
+                {senderId: String(user.id), receiverId: String(user2)},
+                {senderId: String(user2), receiverId: String(user.id)}
             ]
            
         
     },
     orderBy: {createAt: "asc"}
+    
 })
+
     return NextResponse.json(messages)
 
 }
@@ -51,7 +57,6 @@ export async function POST(req:NextRequest) {
         },
     
     })
-
     return NextResponse.json(message)}
     catch{
         return NextResponse.json({error: "エラー発生"}, {status: 500})

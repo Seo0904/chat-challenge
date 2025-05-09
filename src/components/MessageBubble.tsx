@@ -13,7 +13,7 @@ export default function MessageBubble({text, senderId}: MessageBubbleProps) {
 
     const user = session?.user
     return(
-        <div className={cn("flex w-fll ", senderId === String(user?.id) ? "justify-end" : "justify-start")}>
+        <div className={cn("flex w-full ", senderId === String(user?.id) ? "justify-end" : "justify-start")}>
             <div 
             className={cn(
                 "max-w-xs px-4 py-2 rounded-2xl shadow text-black",

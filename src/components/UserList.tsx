@@ -1,6 +1,6 @@
 
 import {Card, CardHeader} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 
@@ -35,6 +35,7 @@ const UserList = ({users, changeSelectUser}: UserLiseProps) => {
         )):
         <div className="pl-5">フレンドを追加しよう!</div>}
         </div>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
   
     </Card>

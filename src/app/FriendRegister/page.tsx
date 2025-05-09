@@ -60,7 +60,7 @@ const FriendRegister = () => {
             name="friendId"
             render={({field}) => (
                 <FormItem>
-                    <FormLabel>Friend ID</FormLabel>
+                    <FormLabel className="text-xl">Friend ID</FormLabel>
                     <FormControl>
                         <Input placeholder="フレンドになりたいユーザのユーザIDを入力してください" type="text" {...field}/>
                     </FormControl>
