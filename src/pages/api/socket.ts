@@ -7,6 +7,7 @@ import type { Socket as NetSocket } from "net";
 import type { Server as HttpServer } from "http";
 import type { Server as IOServer } from "socket.io";
 import type { Socket } from "socket.io";
+import { MessageType } from "@/types/message";
 
 
 interface SocketServer extends HttpServer {
@@ -36,10 +37,16 @@ export default function handler(
 
     // socker serverが起動していない状態なので、起動。
     const io = new Server(res.socket.server, { addTrailingSlash: false });
+    console.log("ソケットレディ")
     // 各イベントを設定
     io.on("connection", (socket: Socket) => {
-        socket.on("disconnect", () => console.log("disconnected"))
-        socket.emit("msg", "hello, from server!")
+        console.log("!!!!!!!!!!!!!サーバ準備!!!!!!!!!!!!!!!")
+        socket.on("disconnect", () => console.log("!!!!!!!!!!!!!!!!!!!!!disconnected"))
+        socket.on("message", (msg: MessageType) => {
+            console.log("サーバーが受信したmsg:", msg)
+            io.emit("NewMessage", msg)
+
+        })
     })
     res.socket.server.io = io;
 
